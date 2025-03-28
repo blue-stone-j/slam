@@ -55,7 +55,7 @@ double MINIMUM_RANGE = 0.1; // 小于此距离的点为无效点，需要剔除
 template <typename PointT> // template function
 void removeClosedPointCloud(const pcl::PointCloud<PointT> &cloud_in,
                             pcl::PointCloud<PointT> &cloud_out,
-                            float thres)
+                            float threshold)
 {
   // 判断输入参数和输出参数是否为同一个东西。如果不是一个东西，则为输出参数声明一个空间。若是相同的东西，则不再声明空间，可以节约空间
   if (&cloud_in != &cloud_out)
@@ -68,10 +68,10 @@ void removeClosedPointCloud(const pcl::PointCloud<PointT> &cloud_in,
 
   size_t j = 0; // 用于计数cloud_out的大小
 
-  // 大于阈值thres的点放入cloud_out
+  // 大于阈值threshold的点放入cloud_out
   for (size_t i = 0; i < cloud_in.points.size(); ++i)
   {
-    if (cloud_in.points[i].x * cloud_in.points[i].x + cloud_in.points[i].y * cloud_in.points[i].y + cloud_in.points[i].z * cloud_in.points[i].z < thres * thres)
+    if (cloud_in.points[i].x * cloud_in.points[i].x + cloud_in.points[i].y * cloud_in.points[i].y + cloud_in.points[i].z * cloud_in.points[i].z < threshold * threshold)
     {
       continue;
     }
@@ -422,7 +422,7 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloudMsg)
     // 继续处理下一行
   }
   // printf("sort q time %f \n", t_q_sort); //输出排序总时间
-  // printf("seperate points time %f \n", t_pts.toc());
+  // printf("separate points time %f \n", t_pts.toc());
 
   // 分别发布当前点云、四种特征点云
   sensor_msgs::PointCloud2 laserCloudOutMsg;
