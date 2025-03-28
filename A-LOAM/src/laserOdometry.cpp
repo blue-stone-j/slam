@@ -85,7 +85,7 @@ std::queue<sensor_msgs::PointCloud2ConstPtr> fullPointsBuf;
 std::mutex mBuf; // 在该线程内起到互斥锁的作用
 
 // undistort lidar point，把每个点投影到该帧的起始时刻. pi为输入点，po为输出点
-void TrasnsformToStart(PointType const *const pi, PointType *const po)
+void TransformToStart(PointType const *const pi, PointType *const po)
 {
   double s; // interpolation ratio
 
@@ -116,7 +116,7 @@ void TransformToEnd(PointType const *const pi, PointType *const po)
 {
   // undistort point first
   pcl::PointXYZI un_point_tmp;
-  TrasnsformToStart(pi, &un_point_tmp); // pi转换到pi所在帧的起始时刻得到的点放入un_point_tmp
+  TransformToStart(pi, &un_point_tmp); // pi转换到pi所在帧的起始时刻得到的点放入un_point_tmp
 
   Eigen::Vector3d un_point(un_point_tmp.x, un_point_tmp.y, un_point_tmp.z);
   Eigen::Vector3d point_end = q_last_curr.inverse() * (un_point - t_last_curr); // 同上述的点的变换方程，过程相反
@@ -213,7 +213,7 @@ int main(int argc, char **argv)
       // 比较buf中第一个点的时间；因为同一帧时间相同，因此这里比较是否为同一帧
       if (timeCornerPointsSharp != timeLaserCloudFullRes || timeCornerPointsLessSharp != timeLaserCloudFullRes || timeSurfPointsFlat != timeLaserCloudFullRes || timeSurfPointsLessFlat != timeLaserCloudFullRes)
       {
-        printf("unsync messeage!");
+        printf("unsync message!");
         ROS_BREAK();
       }
       printf("---3---\n");
@@ -263,7 +263,7 @@ int main(int argc, char **argv)
 
         TicToc t_opt;
         // 进行俩次迭代
-        for (size_t opti_counter = 0; opti_counter < 2; ++opti_counter)
+        for (size_t optimization_counter = 0; optimization_counter < 2; ++optimization_counter)
         {
           corner_correspondence = 0;
           plane_correspondence  = 0;
@@ -291,7 +291,7 @@ int main(int argc, char **argv)
           // find correspondence for corner features;寻找角点的约束
           for (int i = 0; i < cornerPointsSharpNum; i++)
           {
-            TrasnsformToStart(&(cornerPointsSharp->points[i]), &pointSel); // 运动补偿
+            TransformToStart(&(cornerPointsSharp->points[i]), &pointSel); // 运动补偿
             // 在上一帧所有角点构成的kd树中寻找距离当前帧最近的一个点
             // 当前转到起始时刻的点，找1个点，在上一帧kd数的点的ID，两点的距离；后面两个变量为向量
             kdtreeCornerLast->nearestKSearch(pointSel, 1, pointSearchInd, pointSearchSqDis);
@@ -400,7 +400,7 @@ int main(int argc, char **argv)
           // find correspondence for plane features
           for (int i = 0; i < surfPointsFlatNum; ++i)
           {
-            TrasnsformToStart(&(surfPointsFlat->points[i]), &pointSel);
+            TransformToStart(&(surfPointsFlat->points[i]), &pointSel);
             kdtreeSurfLast->nearestKSearch(pointSel, 1, pointSearchInd, pointSearchSqDis);
             printf("---12.0---\n");
 
@@ -499,7 +499,7 @@ int main(int argc, char **argv)
 
           } // endfor: plane correspondence
           printf("---13---\n");
-          // printf("coner_correspondance %d, plane_correspondence %d \n", corner_correspondence, plane_correspondence);
+          // printf("corner_correspondence %d, plane_correspondence %d \n", corner_correspondence, plane_correspondence);
           printf("data association time %f ms \n", t_data.toc());
 
           if ((corner_correspondence + plane_correspondence) < 10)
@@ -523,7 +523,7 @@ int main(int argc, char **argv)
         t_w_curr = t_w_curr + q_w_curr * t_last_curr; // 点的变换方程解耦
         q_w_curr = q_w_curr * q_last_curr;            // 里程计位姿：上一帧位姿 + 位姿变换 = 当前位姿
 
-      } // endelse: if initialized
+      } // end else: if initialized
 
       TicToc t_pub;
 

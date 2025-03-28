@@ -57,7 +57,7 @@ int laserCloudSurroundInd[125];
 pcl::PointCloud<PointType>::Ptr laserCloudCornerLast(new pcl::PointCloud<PointType>());
 pcl::PointCloud<PointType>::Ptr laserCloudSurfLast(new pcl::PointCloud<PointType>());
 
-// ouput: all visualble cube points; 保存用于可视化的局部地图的点云
+// ouput: all visualized cube points; 保存用于可视化的局部地图的点云
 pcl::PointCloud<PointType>::Ptr laserCloudSurround(new pcl::PointCloud<PointType>());
 
 // surround points in map to build tree || 用于优化的小局部地图（后文有详解）
@@ -171,7 +171,7 @@ void laserOdometryHandler(const nav_msgs::Odometry::ConstPtr &laserOdometry)
   odometryBuf.push(laserOdometry);
   mBuf.unlock();
 
-  // high frequence publish
+  // high frequency publish
   Eigen::Quaterniond q_wodom_curr;
   Eigen::Vector3d t_wodom_curr;
   q_wodom_curr.x() = laserOdometry->pose.pose.orientation.x; // 把ros的消息转换为eigen的数据格式
@@ -248,7 +248,7 @@ void process()
       if (timeLaserCloudCornerLast != timeLaserOdometry || timeLaserCloudSurfLast != timeLaserOdometry || timeLaserCloudFullRes != timeLaserOdometry)
       {
         printf("time corner %f surf %f full %f odom %f \n", timeLaserCloudCornerLast, timeLaserCloudSurfLast, timeLaserCloudFullRes, timeLaserOdometry);
-        printf("unsync messeage!");
+        printf("unsync message!");
         mBuf.unlock();
         break;
       }
@@ -533,7 +533,7 @@ void process()
           // ceres::LossFunction *loss_function = NULL;
           // 参考前端里程计的代码注释
           // 建立ceres问题
-          // 核函数，避免oputlier
+          // 核函数，避免outlier
           ceres::LossFunction *loss_function               = new ceres::HuberLoss(0.1); // 残差大于0.1时降低权重，小于0.1不作权重更改
           ceres::LocalParameterization *q_parameterization = new ceres::EigenQuaternionParameterization();
           ceres::Problem::Options problem_options;
@@ -691,7 +691,7 @@ void process()
           // printf("corner num %d used corner num %d \n", laserCloudCornerStackNum, corner_num);
           // printf("surf num %d used surf num %d \n", laserCloudSurfStackNum, surf_num);
 
-          printf("mapping data assosiation time %f ms \n", t_data.toc());
+          printf("mapping data association time %f ms \n", t_data.toc());
 
           // 参照里程计注释
           // 调用ceres求解
@@ -892,8 +892,8 @@ void process()
       frameCount++;
     } // endwhile: odom is empty
 
-    std::chrono::milliseconds dura(2); // 2毫秒
-    std::this_thread::sleep_for(dura); // 暂停2毫秒
+    std::chrono::milliseconds duration(2); // 2毫秒
+    std::this_thread::sleep_for(duration); // 暂停2毫秒
 
   } // endwhile(1):
 }
