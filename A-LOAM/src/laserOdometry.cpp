@@ -199,7 +199,7 @@ int main(int argc, char **argv)
     ros::spinOnce(); // 触发一次回调
 
     /// std::cin.get();
-    printf("---1---\n");
+    // printf("---1---\n");
     // 5种点都不为空；5个消息都有
     if (!cornerSharpBuf.empty() && !cornerLessSharpBuf.empty() && !surfFlatBuf.empty() && !surfLessFlatBuf.empty() && !fullPointsBuf.empty())
     {
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
         printf("unsync message!");
         ROS_BREAK();
       }
-      printf("---3---\n");
+      // printf("---3---\n");
       // 将点云消息转换成pcl格式
       mBuf.lock();
       // 取出buf中第一个相应点云
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
       pcl::fromROSMsg(*fullPointsBuf.front(), *laserCloudFullRes);
       fullPointsBuf.pop();
       mBuf.unlock();
-      printf("---5---\n");
+      // printf("---5---\n");
 
       TicToc t_whole;
       // initializing：一个什么都不做的初始化
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
         // 一帧中两种特征点的数量；突出的特征
         int cornerPointsSharpNum = cornerPointsSharp->points.size();
         int surfPointsFlatNum    = surfPointsFlat->points.size();
-        printf("---7---\n");
+        // printf("---7---\n");
 
         TicToc t_opt;
         // 进行俩次迭代
@@ -278,7 +278,7 @@ int main(int argc, char **argv)
           // 待优化变量是帧间位姿（平移和旋转），这里旋转用四元数表示
           problem.AddParameterBlock(para_q, 4, q_parameterization); //(double数组/指针，数组的长度，四元数加法)
           problem.AddParameterBlock(para_t, 3);
-          printf("---9---\n");
+          // printf("---9---\n");
 
           // 为每个点找寻最近点时，将该点补偿畸变后临时存放于该变量（point selected）
           pcl::PointXYZI pointSel;
@@ -395,14 +395,14 @@ int main(int argc, char **argv)
               corner_correspondence++;
             }
           } // endfor: corner correspondence
-          printf("---11---\n");
+          // printf("---11---\n");
 
           // find correspondence for plane features
           for (int i = 0; i < surfPointsFlatNum; ++i)
           {
             TransformToStart(&(surfPointsFlat->points[i]), &pointSel);
             kdtreeSurfLast->nearestKSearch(pointSel, 1, pointSearchInd, pointSearchSqDis);
-            printf("---12.0---\n");
+            // printf("---12.0---\n");
 
             int closestPointInd = -1, minPointInd2 = -1, minPointInd3 = -1;
             if (pointSearchSqDis[0] < DISTANCE_SQ_THRESHOLD)
@@ -411,7 +411,7 @@ int main(int argc, char **argv)
               // get closest point's scan ID
               int closestPointScanID = int(laserCloudSurfLast->points[closestPointInd].intensity);
               double minPointSqDis2 = DISTANCE_SQ_THRESHOLD, minPointSqDis3 = DISTANCE_SQ_THRESHOLD;
-              printf("---12.1---\n");
+              // printf("---12.1---\n");
 
               // search in the direction of increasing scan line
               // 确保三个点不会水平（三个点不在同一scan）或竖直（三个点两两不共scan时可能）地共线，这样才能构成面
@@ -438,7 +438,7 @@ int main(int argc, char **argv)
                   minPointInd3   = j;
                 }
               }
-              printf("---12.3---\n");
+              // printf("---12.3---\n");
 
               // search in the direction of decreasing scan line
               for (int j = closestPointInd - 1; j >= 0; --j)
@@ -488,7 +488,7 @@ int main(int argc, char **argv)
                 {
                   s = 1.0;
                 }
-                printf("---12.5---\n");
+                // printf("---12.5---\n");
                 // 选择的Cost Function为自动求导
                 ceres::CostFunction *cost_function = LidarPlaneFactor::Create(curr_point, last_point_a, last_point_b, last_point_c, s);
                 //(cost function, 核函数, 两个待优化参数)
@@ -498,7 +498,7 @@ int main(int argc, char **argv)
             } // endif:判断最近的点是否小于阈值
 
           } // endfor: plane correspondence
-          printf("---13---\n");
+          // printf("---13---\n");
           // printf("corner_correspondence %d, plane_correspondence %d \n", corner_correspondence, plane_correspondence);
           printf("data association time %f ms \n", t_data.toc());
 
@@ -589,11 +589,8 @@ int main(int argc, char **argv)
       // std::cout << "the size of corner last is " << laserCloudCornerLastNum << ", and the size of surf last is " << laserCloudSurfLastNum << '\n';
 
       // kd树设置为当前帧，用于下一帧的lidar odom使用
-      printf("--------------------------odom1---------------------------\n");
       kdtreeCornerLast->setInputCloud(laserCloudCornerLast);
-      printf("--------------------------odom3---------------------------\n");
       kdtreeSurfLast->setInputCloud(laserCloudSurfLast);
-      printf("--------------------------odom5---------------------------\n");
 
       // 每隔skip帧就向后端输出一次该帧的特征点；如果算力不足可降频
       if (frameCount % skipFrameNum == 0)
